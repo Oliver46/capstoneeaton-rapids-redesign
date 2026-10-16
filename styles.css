@@ -1198,7 +1198,15 @@ a.contact-value { display: inline-block; padding-block: var(--space-1); }
 .footer-nav ul { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
 .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-ink); font-weight: 700; text-decoration: none; }
 .footer-nav a:hover { color: var(--color-maroon); text-decoration: underline; }
-.footer-legal { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--color-border); color: var(--color-muted); }
+.footer-legal { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--color-border); color: var(--color-muted);  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-5); }
+/* Designer credit: Leon Oliver logo, bottom right */
+.footer-credit { display: inline-flex; align-items: center; gap: var(--space-2); flex-shrink: 0; margin-left: auto; min-height: 44px; border-radius: 4px; color: var(--color-muted); text-decoration: none; transition: opacity .2s ease; }
+.footer-credit img { display: block; width: 30px; height: auto; border-radius: 3px; }
+@media (max-width: 47.99em) {
+  .footer-credit { flex-basis: 100%; justify-content: center; margin-left: 0; }
+}
+.footer-credit:hover { opacity: .8; }
+.footer-credit:focus-visible { outline: 2px solid var(--color-maroon); outline-offset: 3px; }
 
 @media (min-width: 48em) {
   .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--space-6); }
