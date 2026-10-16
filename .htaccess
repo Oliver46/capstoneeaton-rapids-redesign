@@ -1,0 +1,52 @@
+# Capstone Family Practice: Apache server settings (ignored by other hosts).
+# Safe defaults for a static site: HTTPS + www, compression, long caching for assets.
+
+# ---- Redirect to https://www.capstoneeatonrapids.com (matches the canonical URL) ----
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} !^www\. [NC]
+  RewriteRule ^ https://www.capstoneeatonrapids.com%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ---- Correct types for modern formats ----
+<IfModule mod_mime.c>
+  AddType image/avif .avif
+  AddType image/webp .webp
+  AddType font/woff2 .woff2
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# ---- Compression (Brotli if available, otherwise gzip) ----
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css application/javascript image/svg+xml application/manifest+json application/xml text/plain
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml application/manifest+json application/xml text/plain
+</IfModule>
+
+# ---- Browser caching ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 week"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/x-icon "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
+
+# ---- Small security / privacy headers ----
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# Don't serve the project docs, tools or image originals
+RedirectMatch 404 ^/(\.git|docs|tools|assets/images/originals)(/|$)
+RedirectMatch 404 ^/README\.md$
