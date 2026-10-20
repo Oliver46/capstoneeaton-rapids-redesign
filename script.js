@@ -85,6 +85,19 @@
     return node;
   }
 
+  // Append text to a node, setting times ("8:00 AM", "12:00–1:00 PM") in the serif .time style
+  var TIME_RE = /\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\s?[–-]\s?\d{1,2}:\d{2}(?:\s?[AP]M)?)?/g;
+  function appendWithTimes(node, text) {
+    var last = 0;
+    text.replace(TIME_RE, function (match, offset) {
+      if (offset > last) node.appendChild(document.createTextNode(text.slice(last, offset)));
+      node.appendChild(el('span', 'time', match));
+      last = offset + match.length;
+    });
+    if (last < text.length) node.appendChild(document.createTextNode(text.slice(last)));
+    return node;
+  }
+
   // Today in Eastern Time: { weekday, iso: 'YYYY-MM-DD', minutes }, or null on very old browsers
   function practiceNow() {
     var parts = {};
@@ -265,7 +278,7 @@
         p.appendChild(el('span', g.closed ? '' : 'time', g.text));
         if (g.lunch) {
           p.appendChild(el('br'));
-          p.appendChild(el('span', 'footer-muted', 'Lunch ' + lunchText));
+          p.appendChild(appendWithTimes(el('span', 'footer-muted'), 'Lunch ' + lunchText));
         }
         footer.appendChild(p);
       });
@@ -354,8 +367,9 @@
       target.appendChild(el('p', '', 'Special schedule: ' + special.label + '.'));
       note.textContent = 'Times shown are Eastern Time.';
     } else {
-      note.textContent = 'Regular weekly hours (Eastern Time)' +
-        (week.lunch ? '; closed ' + compactRange(LUNCH) + ' for lunch' : '') + '. ';
+      note.textContent = '';
+      appendWithTimes(note, 'Regular weekly hours (Eastern Time)' +
+        (week.lunch ? '; closed ' + compactRange(LUNCH) + ' for lunch' : '') + '. ');
       note.appendChild(el('span', 'holiday-note', 'Holiday hours may differ, so please call to confirm.'));
     }
 
@@ -404,7 +418,8 @@
       open = true;
       text = 'Open now · ' + (h.lunch && t < LUNCH.start ? 'closes for lunch at ' + clock(LUNCH.start) : 'closes at ' + clock(h.end));
     }
-    status.textContent = text;
+    status.textContent = '';
+    status.appendChild(appendWithTimes(el('span'), text));   // one flex item next to the dot
     status.classList.toggle('is-open', open);
     status.hidden = false;
   }

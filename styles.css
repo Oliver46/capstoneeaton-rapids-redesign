@@ -54,17 +54,10 @@
   font-style: normal;
   font-display: swap;
 }
-/* Hero headline only */
+/* Hero headline: the italic second line */
 @font-face {
-  font-family: "Playfair Display";
-  src: url("assets/fonts/playfair-display-500.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Playfair Display";
-  src: url("assets/fonts/playfair-display-400-italic.woff2") format("woff2");
+  font-family: "Fraunces";
+  src: url("assets/fonts/fraunces-400-italic.woff2") format("woff2");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -115,7 +108,7 @@
   /* Typography */
   --font-heading: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", Verdana, system-ui, sans-serif;
-  --font-display: "Playfair Display", "Didot", "Bodoni 72", Georgia, serif;
+  --font-display: var(--font-heading);   /* one serif family across the site */
   --text-sm: 1rem;                                          /* 16px: smallest text */
   --text-base: 1.125rem;                                    /* 18px: body */
   --text-md: 1.25rem;                                       /* lead text, card titles */
@@ -577,7 +570,7 @@ a[href^="tel:"] { white-space: nowrap; }
   max-width: 13ch;
   font-family: var(--font-display);
   font-size: var(--text-display);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.01em;
   color: var(--color-maroon-ink);
@@ -723,6 +716,11 @@ a[href^="tel:"] { white-space: nowrap; }
   .fa-icon { max-width: 52px; }
   .service-item h3 { font-size: var(--text-base); }
   .service-item p { font-size: var(--text-sm); }
+}
+/* Small phones: one column so descriptions get a comfortable line length */
+@media (max-width: 29.99em) {
+  .service-list { grid-template-columns: 1fr; }
+  .service-item:nth-child(2) { border-top: 1px solid var(--color-hairline-dark); padding-top: var(--space-4); }
 }
 /* Tablets: 2 columns x 4 rows (7 services + the call tile) */
 @media (min-width: 48em) {
@@ -966,6 +964,9 @@ a[href^="tel:"] { white-space: nowrap; }
 .disclosure summary {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  list-style: none;
   min-height: var(--tap-min);
   font-weight: 700;
   color: var(--color-brown-text);
@@ -973,6 +974,20 @@ a[href^="tel:"] { white-space: nowrap; }
   border-radius: 4px;
 }
 .disclosure summary:hover { text-decoration: underline; }
+.disclosure summary::-webkit-details-marker { display: none; }
+.disclosure summary::after {             /* chevron, same as the FAQ */
+  content: "";
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.25rem;
+  border-right: 2.5px solid var(--color-maroon);
+  border-bottom: 2.5px solid var(--color-maroon);
+  rotate: 45deg;
+  translate: 0 -25%;
+  transition: rotate 0.2s ease, translate 0.2s ease;
+}
+.disclosure[open] summary::after { rotate: 225deg; translate: 0 25%; }
 .disclosure p { margin-top: var(--space-2); }
 
 @media (min-width: 40em) {
@@ -982,6 +997,7 @@ a[href^="tel:"] { white-space: nowrap; }
 @media (min-width: 56em) {
   .insurance-grid { grid-template-columns: 1.25fr 1fr; align-items: stretch; }
   .ins-accepted { grid-column: 1 / -1; }
+  .ins-selfpay { align-self: start; }    /* short card: don't stretch into empty space */
 }
 
 
@@ -1127,7 +1143,7 @@ a.contact-value { display: inline-block; padding-block: var(--space-1); }
   line-height: 1.6;
 }
 .lunch-note { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-muted); }
-.time { font-family: var(--font-heading); font-weight: 600; }   /* serif figures for times */
+.time { font-family: var(--font-heading); font-weight: 600; white-space: nowrap; }   /* serif figures for times */
 
 .emergency-note {
   display: flex;
