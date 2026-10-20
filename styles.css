@@ -479,10 +479,8 @@ a[href^="tel:"] { white-space: nowrap; }
 /* Heading on a dark section */
 .section-head--on-dark h2 { color: var(--color-on-maroon); }
 .section-head--on-dark .section-intro { color: var(--color-on-maroon-muted); }
-.section-head--on-dark .eyebrow,
-.hero .eyebrow { color: var(--color-rose); }
-.section-head--on-dark .eyebrow::before,
-.hero .eyebrow::before { background: var(--color-rose); }
+.section-head--on-dark .eyebrow { color: var(--color-rose); }
+.section-head--on-dark .eyebrow::before { background: var(--color-rose); }
 
 /* Panel: deep burgundy glass card (hero hours, services, new-patient steps) */
 .panel {
@@ -558,7 +556,7 @@ a[href^="tel:"] { white-space: nowrap; }
 
 
 /* ==========================================================================
-   7. Hero: dark burgundy, photo fades in (right on desktop)
+   7. Hero: warm sand, photo fades in (right on desktop)
    ========================================================================== */
 .hero {
   --fade-band: clamp(260px, 70vw, 440px);
@@ -566,12 +564,12 @@ a[href^="tel:"] { white-space: nowrap; }
   isolation: isolate;
   overflow: hidden;
   padding-block: var(--space-6) var(--section-pad);
-  background: var(--color-maroon-ink);   /* also shows if the photo fails */
-  color: var(--color-on-maroon);
+  background: var(--color-sand);         /* also shows if the photo fails */
+  color: var(--color-ink);
 }
 .hero-img { object-position: 45% 35%; }
 .hero-media::after {
-  background: linear-gradient(180deg, rgb(42 6 8 / 0.15) 0%, rgb(42 6 8 / 0.4) 40%, rgb(42 6 8 / 0.88) 75%, var(--color-maroon-ink) 100%);
+  background: linear-gradient(180deg, rgb(243 234 223 / 0.1) 0%, rgb(243 234 223 / 0.35) 40%, rgb(243 234 223 / 0.88) 75%, var(--color-sand) 100%);
 }
 .hero-content { padding-top: calc(var(--fade-band) - 7rem); }
 
@@ -582,10 +580,11 @@ a[href^="tel:"] { white-space: nowrap; }
   font-weight: 500;
   line-height: 1.08;
   letter-spacing: -0.01em;
-  color: var(--color-on-maroon);
+  color: var(--color-maroon-ink);
 }
-.hero h1 em { display: block; font-style: italic; font-weight: 400; color: var(--color-rose); }
-.lead { max-width: 34rem; margin-top: var(--space-5); font-size: var(--text-md); color: var(--color-on-maroon-muted); }
+.hero h1 em { display: block; font-style: italic; font-weight: 400; color: var(--color-maroon); }
+.hero .eyebrow { color: var(--color-maroon); }
+.lead { max-width: 34rem; margin-top: var(--space-5); font-size: var(--text-md); color: var(--color-brown-text); }
 .cta-row { margin-top: var(--space-6); }
 
 /* Hours card */
@@ -658,8 +657,8 @@ a[href^="tel:"] { white-space: nowrap; }
   .hero-img { object-position: 45% 40%; }
   .hero-media::after {
     background:
-      linear-gradient(90deg, var(--color-maroon-ink) 0%, rgb(42 6 8 / 0.55) 22%, rgb(42 6 8 / 0) 45%),
-      radial-gradient(ellipse 56% 58% at 58% 46%, rgb(42 6 8 / 0) 50%, rgb(42 6 8 / 0.55) 66%, var(--color-maroon-ink) 78%);
+      linear-gradient(90deg, var(--color-sand) 0%, rgb(243 234 223 / 0.55) 22%, rgb(243 234 223 / 0) 45%),
+      radial-gradient(ellipse 56% 58% at 58% 46%, rgb(243 234 223 / 0) 50%, rgb(243 234 223 / 0.55) 66%, var(--color-sand) 78%);
   }
   /* Text on the left; the hours card sits low over the photo */
   .hero-content {
@@ -777,7 +776,7 @@ a[href^="tel:"] { white-space: nowrap; }
   inset: -30% auto auto -20%;
   width: 70%;
   aspect-ratio: 1;
-  background: radial-gradient(closest-side, rgb(243 201 189 / 0.35), transparent);
+  background: radial-gradient(closest-side, rgb(243 234 223 / 0.35), transparent);
 }
 .provider-photo { justify-self: center; }
 .provider-photo img {
