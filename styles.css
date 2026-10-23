@@ -215,7 +215,7 @@ ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
 #main:focus { outline: none; }
 
 /* Dark surfaces switch the focus ring to light gold */
-.on-dark, .panel {
+.on-dark, .panel, .hero {
   --color-focus: var(--color-focus-light);
   --color-focus-halo: var(--color-maroon-ink);
 }
@@ -557,12 +557,12 @@ a[href^="tel:"] { white-space: nowrap; }
   isolation: isolate;
   overflow: hidden;
   padding-block: var(--space-6) var(--section-pad);
-  background: var(--color-sand);         /* also shows if the photo fails */
-  color: var(--color-ink);
+  background: var(--color-burgundy);     /* also shows if the photo fails */
+  color: var(--color-on-maroon);
 }
 .hero-img { object-position: 45% 35%; }
 .hero-media::after {
-  background: linear-gradient(180deg, rgb(243 234 223 / 0.1) 0%, rgb(243 234 223 / 0.35) 40%, rgb(243 234 223 / 0.88) 75%, var(--color-sand) 100%);
+  background: linear-gradient(180deg, rgb(74 11 11 / 0.08) 0%, rgb(74 11 11 / 0.3) 40%, rgb(74 11 11 / 0.82) 75%, var(--color-burgundy) 100%);
 }
 .hero-content { padding-top: calc(var(--fade-band) - 7rem); }
 
@@ -573,10 +573,14 @@ a[href^="tel:"] { white-space: nowrap; }
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.01em;
-  color: var(--color-maroon-ink);
+  color: var(--color-on-maroon);
 }
-.hero h1 em { display: block; font-style: italic; font-weight: 400; color: var(--color-maroon); }
-.hero .eyebrow { color: var(--color-maroon); }
+.hero h1 em { display: block; font-style: italic; font-weight: 400; color: var(--color-rose); }
+.hero .eyebrow { color: var(--color-rose); }
+.hero .eyebrow::before { background: var(--color-rose); }
+.hero .lead { color: var(--color-on-maroon-muted); }
+/* The hours card sits on the burgundy hero: a deeper shade keeps it distinct */
+.hero .hours-panel { background: rgb(42 6 8 / 0.92); }
 .lead { max-width: 34rem; margin-top: var(--space-5); font-size: var(--text-md); color: var(--color-brown-text); }
 .cta-row { margin-top: var(--space-6); }
 
@@ -650,8 +654,8 @@ a[href^="tel:"] { white-space: nowrap; }
   .hero-img { object-position: 45% 40%; }
   .hero-media::after {
     background:
-      linear-gradient(90deg, var(--color-sand) 0%, rgb(243 234 223 / 0.55) 22%, rgb(243 234 223 / 0) 45%),
-      radial-gradient(ellipse 56% 58% at 58% 46%, rgb(243 234 223 / 0) 50%, rgb(243 234 223 / 0.55) 66%, var(--color-sand) 78%);
+      linear-gradient(90deg, var(--color-burgundy) 0%, rgb(74 11 11 / 0.55) 22%, rgb(74 11 11 / 0) 45%),
+      radial-gradient(ellipse 56% 58% at 58% 46%, rgb(74 11 11 / 0) 50%, rgb(74 11 11 / 0.6) 66%, var(--color-burgundy) 78%);
   }
   /* Text on the left; the hours card sits low over the photo */
   .hero-content {
