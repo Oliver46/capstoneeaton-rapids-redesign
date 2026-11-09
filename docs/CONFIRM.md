@@ -15,7 +15,7 @@ Every item below must be confirmed by Capstone Family Practice before launch. It
 | 4 | Weekly hours | Mon–Thu 8:00 AM–5:00 PM, Fri 8:00 AM–12:00 PM, lunch 12:00–1:00 PM | Live site | Re-confirm. |
 | 5 | Weekend hours | Saturday and Sunday shown as **Closed** | Assumption (the live site lists no weekend hours) | Confirm. |
 | 6 | Lunch closure days | Applied to Mon–Thu only | Assumption (Friday closes at noon) | Confirm. |
-| 7 | Holiday schedule | All holidays in `hours.js` are set to open (`false`). The page says "Holiday hours may differ, so please call to confirm." | n/a | Ask which holidays the office closes (or has shorter hours) and switch them on in `hours.js` (`true` or the hours). |
+| 7 | Holiday schedule | Set from the office's email (Nov 2026): closed Thanksgiving, the day after, Christmas, New Year's Day and Memorial Day; reduced afternoon hours (call for availability) on Christmas Eve and New Year's Eve; July 4 and Labor Day not on their list, so the site shows the regular hours with "Holiday hours may differ, so please call to confirm." | Office | ✅ Resolved. These repeat every year: ask the office each fall if anything changes. |
 | 8 | Patient portal URL | https://29799.portal.athenahealth.com/ | Live site | Confirm this is still the practice's portal. |
 | 9 | Accepted insurance | 10 plans. "Aetna" and "Aetna (Most Plans)" were merged into **"Aetna (most plans)"**. | Live site | Re-verify the full list, including whether plain "Aetna" meant all Aetna plans. |
 | 10 | Not-accepted insurance | Medicaid (primary or secondary), HAP, McLaren, Meridian, new auto and workers' compensation cases | Live site | Re-verify. |
@@ -40,3 +40,5 @@ Every item below must be confirmed by Capstone Family Practice before launch. It
 - **Not included on purpose:** geo coordinates, insurance, services, provider credentials, ratings and reviews. Add them only after verification.
 - `openingHoursSpecification` encodes the lunch break as two time ranges. If items 4–6 change, update it.
 - Schema markup doesn't guarantee rich results or better rankings.
+
+| 27 | Lab hours | In-office lab (blood draws), run by an outside agency: Mon–Thu 7:15 AM – 4:30 PM (lunch 12–1), Fri 7:15 AM – 12:00 PM, weekends closed. Pam's note shown with the hours | Office (Nov 2026) | ✅ Provided by the office. Edit in `hours.js` → `lab`. |

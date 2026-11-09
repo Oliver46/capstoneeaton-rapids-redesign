@@ -66,6 +66,7 @@ Everything about the hours is in **`hours.js`**. Open it in any text editor, cha
 | Shorter hours on a holiday | `holidays` | `christmasEve: '8:00 AM – 12:00 PM',` |
 | Close on a single date (training, weather, vacation) | `specialDates` | `{ date: '2026-12-26', label: 'Staff training', hours: 'Closed' },` |
 | Change or turn off the "Upcoming: closed…" warning | `announceDaysAhead` | `announceDaysAhead: 0,` |
+| Change the lab's hours (in-office lab, blood draws) | `lab` → `weekly`, `lunch`, `lunchDays` | `Friday: '7:15 AM – 11:30 AM',` |
 
 Holiday dates are calculated automatically every year. If `hours.js` is missing or has a typo, the page simply shows the hours written in `index.html` (the fallback copy), so nothing breaks. If the regular weekly hours change, it's good practice to also update that fallback copy (the `#hours-table`, footer and FAQ text in `index.html`) for visitors without JavaScript.
 

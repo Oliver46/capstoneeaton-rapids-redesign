@@ -32,23 +32,23 @@ window.CAPSTONE_HOURS = {
 
   /* 3. HOLIDAYS -------------------------------------------------------------
      For each holiday write ONE of these:
-       false                   open as usual
+       false                   open as usual (the site still says
+                               "Holiday hours may differ, so please call")
        true                    closed all day
        '8:00 AM – 12:00 PM'    shorter hours that day
+       'Any other text'        shown as written, e.g. 'Reduced afternoon hours'
      The dates are worked out automatically every year.
-
-     CONFIRM with the practice: all are set to false (open) until the office
-     tells you which days it closes.                                        */
+     Set by the office in November 2026 (holiday list through 2027).        */
   holidays: {
-    newYearsDay:          false,   // January 1
-    memorialDay:          false,   // last Monday in May
-    independenceDay:      false,   // July 4
-    laborDay:             false,   // first Monday in September
-    thanksgiving:         false,   // 4th Thursday in November
-    dayAfterThanksgiving: false,   // the Friday after Thanksgiving
-    christmasEve:         false,   // December 24
-    christmasDay:         false,   // December 25
-    newYearsEve:          false    // December 31
+    newYearsDay:          true,    // January 1
+    memorialDay:          true,    // last Monday in May
+    independenceDay:      false,   // July 4: not on the office's list
+    laborDay:             false,   // first Monday in September: not on the office's list
+    thanksgiving:         true,    // 4th Thursday in November
+    dayAfterThanksgiving: true,    // the Friday after Thanksgiving
+    christmasEve:         'Reduced afternoon hours (call for availability)',   // December 24
+    christmasDay:         true,    // December 25
+    newYearsEve:          'Reduced afternoon hours (call for availability)'    // December 31
   },
 
   /* 4. ONE-OFF DAYS -----------------------------------------------------------
@@ -63,5 +63,22 @@ window.CAPSTONE_HOURS = {
   /* 5. WARNING BEFORE A CLOSURE ----------------------------------------------
      How many days ahead the homepage shows "Upcoming: closed Thursday, Nov 26
      (Thanksgiving Day)". Write 0 to turn it off.                           */
-  announceDaysAhead: 7
+  announceDaysAhead: 7,
+
+  /* 6. LAB HOURS --------------------------------------------------------------
+     The in-office lab (blood draws) is run by another agency and has its own
+     hours. Same rules as the office hours above.                           */
+  lab: {
+    weekly: {
+      Monday:    '7:15 AM – 4:30 PM',
+      Tuesday:   '7:15 AM – 4:30 PM',
+      Wednesday: '7:15 AM – 4:30 PM',
+      Thursday:  '7:15 AM – 4:30 PM',
+      Friday:    '7:15 AM – 12:00 PM',
+      Saturday:  'Closed',
+      Sunday:    'Closed'
+    },
+    lunch: '12:00 PM – 1:00 PM',
+    lunchDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday']
+  }
 };

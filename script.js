@@ -8,8 +8,9 @@
 
    1. Settings and helpers
    2. Schedule (hours.js, or the HTML hours table as a fallback)
-   3. Weekly hours on the page (table, lunch note, footer, FAQ, JSON-LD)
-   4. Today's hours card and "Open now" status
+   3. Weekly hours on the page (office and lab tables, lunch notes, footer,
+      FAQ answers, JSON-LD, upcoming-holiday list)
+   4. Today's hours card (office + lab) and "Open now" status
    5. Mobile menu
    6. Current section in the menu
    7. Parallax background
@@ -127,13 +128,16 @@
      2. Schedule
      WEEKLY[day] = { day, text, range, closed, lunch }  (Monday to Sunday)
      LUNCH       = { start, end } or null
+     LAB         = { week: { same shape as WEEKLY }, lunch } or null (hours.js "lab")
      SPECIALS    = [{ date: 'YYYY-MM-DD', label, hours }]  (holidays + one-off days)
      ------------------------------------------------------------------ */
   var table = $('hours-table');
+  var labTable = $('lab-hours-table');
   var LUNCH = null;
   var WEEKLY = {};
+  var LAB = null;
 
-  function describeDay(day, raw, lunchDays) {
+  function describeDay(day, raw, lunchDays, lunch) {
     var closed = isClosedText(raw);
     var range = closed ? null : parseRange(raw);
     return {
@@ -141,27 +145,38 @@
       text: range ? rangeText(range) : (closed ? 'Closed' : String(raw)),
       range: range,
       closed: closed,
-      lunch: !!(range && LUNCH && lunchDays.indexOf(day) > -1 && range.start < LUNCH.start && range.end > LUNCH.end)
+      lunch: !!(range && lunch && lunchDays.indexOf(day) > -1 && range.start < lunch.start && range.end > lunch.end)
     };
+  }
+
+  // A weekly schedule from hours.js: { Monday: {…}, … }
+  function buildWeek(weekly, lunch, lunchDays) {
+    var week = {};
+    WEEK.forEach(function (day) {
+      week[day] = describeDay(day, weekly[day] === undefined ? 'Closed' : weekly[day], lunch ? (lunchDays || []) : [], lunch);
+    });
+    return week;
   }
 
   if (CONFIG.weekly) {
     // hours.js is the source
     LUNCH = CONFIG.lunch ? parseRange(CONFIG.lunch) : null;
-    WEEK.forEach(function (day) {
-      var raw = CONFIG.weekly[day] === undefined ? 'Closed' : CONFIG.weekly[day];
-      WEEKLY[day] = describeDay(day, raw, LUNCH ? (CONFIG.lunchDays || []) : []);
-    });
+    WEEKLY = buildWeek(CONFIG.weekly, LUNCH, CONFIG.lunchDays);
   } else if (table) {
     // Fallback: hours.js missing or broken, read the hours written in the HTML table
     LUNCH = DEFAULT_LUNCH;
     WEEK.forEach(function (day) {
       var row = table.querySelector('tr[data-day="' + day + '"]');
       if (!row) return;
-      var info = describeDay(day, row.querySelector('td').textContent.trim(), row.hasAttribute('data-no-lunch') ? [] : [day]);
+      var info = describeDay(day, row.querySelector('td').textContent.trim(), row.hasAttribute('data-no-lunch') ? [] : [day], LUNCH);
       info.text = row.querySelector('td').textContent.trim();
       WEEKLY[day] = info;
     });
+  }
+
+  if (CONFIG.lab && CONFIG.lab.weekly) {
+    var labLunch = CONFIG.lab.lunch ? parseRange(CONFIG.lab.lunch) : null;
+    LAB = { lunch: labLunch, week: buildWeek(CONFIG.lab.weekly, labLunch, CONFIG.lab.lunchDays) };
   }
 
   var SPECIALS = buildSpecials(CONFIG);
@@ -234,83 +249,113 @@
      3. Weekly hours on the page (only when hours.js is present;
         otherwise the HTML already shows them)
      ------------------------------------------------------------------ */
-  function renderWeeklyHours() {
-    if (!CONFIG.weekly) return;
-    var days = WEEK.map(function (d) { return WEEKLY[d]; });
-    var lunchText = LUNCH ? compactRange(LUNCH) : '';
-    var lunchDays = days.filter(function (d) { return d.lunch; }).map(function (d) { return d.day; });
+  function weekDays(week) { return WEEK.map(function (d) { return week[d]; }).filter(Boolean); }
 
-    // Consecutive days with the same hours (and the same lunch) form one group
+  // Consecutive days with the same hours (and the same lunch) form one group
+  function groupDays(days) {
     var groups = [];
     days.forEach(function (d) {
       var last = groups[groups.length - 1];
       if (last && last.text === d.text && last.lunch === d.lunch) last.days.push(d.day);
       else groups.push({ text: d.text, lunch: d.lunch, closed: d.closed, days: [d.day] });
     });
+    return groups;
+  }
 
-    // Hours table
-    if (table) days.forEach(function (d) {
-      var row = table.querySelector('tr[data-day="' + d.day + '"]');
+  function fillTable(tableEl, days) {
+    if (!tableEl) return;
+    days.forEach(function (d) {
+      var row = tableEl.querySelector('tr[data-day="' + d.day + '"]');
       if (!row) return;
       row.querySelector('td').textContent = d.text;
       row.toggleAttribute('data-closed', d.closed);
       row.toggleAttribute('data-no-lunch', !d.lunch);
     });
+  }
 
-    // Lunch note under the table
-    var lunchNote = $('lunch-note');
-    if (lunchNote) {
-      lunchNote.hidden = !lunchDays.length;
-      if (lunchDays.length) {
-        lunchNote.textContent = 'Closed for lunch ';
-        lunchNote.appendChild(el('span', 'time', lunchText));
-        lunchNote.appendChild(document.createTextNode(', ' + dayRange(lunchDays) + '.'));
-      }
-    }
+  // "Closed for lunch 12:00–1:00 PM, Monday–Thursday."
+  function fillLunchNote(noteEl, days, lunch, prefix) {
+    if (!noteEl) return;
+    var lunchDays = days.filter(function (d) { return d.lunch; }).map(function (d) { return d.day; });
+    noteEl.hidden = !lunchDays.length;
+    if (!lunchDays.length) return;
+    noteEl.textContent = prefix;
+    noteEl.appendChild(el('span', 'time', compactRange(lunch)));
+    noteEl.appendChild(document.createTextNode(', ' + dayRange(lunchDays) + '.'));
+  }
 
-    // Footer summary
-    var footer = $('footer-hours-list');
-    if (footer) {
-      footer.textContent = '';
-      groups.forEach(function (g) {
-        var p = el('p');
-        p.appendChild(document.createTextNode(dayRange(g.days, true) + ': '));
-        p.appendChild(el('span', g.closed ? '' : 'time', g.text));
-        if (g.lunch) {
-          p.appendChild(el('br'));
-          p.appendChild(appendWithTimes(el('span', 'footer-muted'), 'Lunch ' + lunchText));
-        }
-        footer.appendChild(p);
-      });
-    }
-
-    // One sentence for the FAQ answer and for Google
-    var openParts = groups.filter(function (g) { return !g.closed; }).map(function (g) {
+  // "Monday through Thursday, 8:00 AM to 5:00 PM (closed 12:00 to 1:00 PM for lunch), and … We are closed …"
+  function hoursSentence(days, lunch, closedSubject) {
+    var lunchText = lunch ? compactRange(lunch) : '';
+    var openParts = groupDays(days).filter(function (g) { return !g.closed; }).map(function (g) {
       return dayRange(g.days, false, ' through ') + ', ' + g.text.replace(' – ', ' to ') +
         (g.lunch ? ' (closed ' + lunchText.replace('–', ' to ') + ' for lunch)' : '');
     });
     var closedDays = days.filter(function (d) { return d.closed; }).map(function (d) { return d.day; });
-    var sentence = listAnd(openParts, ', and ') + '.' + (closedDays.length ? ' We are closed ' + listAnd(closedDays) + '.' : '');
+    return listAnd(openParts, ', and ') + '.' + (closedDays.length ? ' ' + closedSubject + ' ' + listAnd(closedDays) + '.' : '');
+  }
 
-    var faq = $('faq-hours-answer');
-    if (faq) {
-      var note = faq.querySelector('.holiday-note'), link = faq.querySelector('a');
-      faq.textContent = sentence + ' ';
-      if (note) faq.appendChild(note);
-      if (link) {
-        faq.appendChild(document.createTextNode(' See the '));
-        faq.appendChild(link);
-        faq.appendChild(document.createTextNode('.'));
+  function cleanText(node) { return node.textContent.replace(/\s+/g, ' ').trim(); }
+
+  function renderWeeklyHours() {
+    var faqAnswers = {};       // FAQ question (lowercase) -> answer text for JSON-LD
+
+    if (CONFIG.weekly) {
+      var days = weekDays(WEEKLY);
+      var lunchText = LUNCH ? compactRange(LUNCH) : '';
+      fillTable(table, days);
+      fillLunchNote($('lunch-note'), days, LUNCH, 'Closed for lunch ');
+
+      // Footer summary
+      var footer = $('footer-hours-list');
+      if (footer) {
+        footer.textContent = '';
+        groupDays(days).forEach(function (g) {
+          var p = el('p');
+          p.appendChild(document.createTextNode(dayRange(g.days, true) + ': '));
+          p.appendChild(el('span', g.closed ? '' : 'time', g.text));
+          if (g.lunch) {
+            p.appendChild(el('br'));
+            p.appendChild(appendWithTimes(el('span', 'footer-muted'), 'Lunch ' + lunchText));
+          }
+          footer.appendChild(p);
+        });
+      }
+
+      // FAQ: office hours
+      var sentence = hoursSentence(days, LUNCH, 'We are closed');
+      var faq = $('faq-hours-answer');
+      if (faq) {
+        var note = faq.querySelector('.holiday-note'), link = faq.querySelector('a');
+        faq.textContent = sentence + ' ';
+        if (note) faq.appendChild(note);
+        if (link) {
+          faq.appendChild(document.createTextNode(' See the '));
+          faq.appendChild(link);
+          faq.appendChild(document.createTextNode('.'));
+        }
+      }
+      faqAnswers['what are your office hours?'] = sentence + ' Holiday hours may differ, so please call ' + PHONE + ' to confirm.';
+    }
+
+    if (LAB) {
+      var labDays = weekDays(LAB.week);
+      fillTable(labTable, labDays);
+      fillLunchNote($('lab-lunch-note'), labDays, LAB.lunch, 'Lab closed for lunch ');
+      var labSpan = $('faq-lab-hours');
+      if (labSpan) {
+        labSpan.textContent = hoursSentence(labDays, LAB.lunch, 'The lab is closed');
+        faqAnswers['do you have a lab for blood work?'] = cleanText(labSpan.parentNode).replace(/\s*See the lab hours\.$/, '');
       }
     }
 
     // Structured data (JSON-LD) read by search engines
     try {
       var clinicEl = $('clinic-data');
-      if (clinicEl) {
+      if (clinicEl && CONFIG.weekly) {
         var clinic = JSON.parse(clinicEl.textContent);
         var spec = [];
-        days.forEach(function (d) {
+        weekDays(WEEKLY).forEach(function (d) {
           if (!d.range) return;
           var slots = d.lunch ? [[d.range.start, LUNCH.start], [LUNCH.end, d.range.end]] : [[d.range.start, d.range.end]];
           slots.forEach(function (s) {
@@ -326,10 +371,35 @@
       var faqEl = $('faq-data');
       if (faqEl) {
         var faqData = JSON.parse(faqEl.textContent);
-        faqData.mainEntity[0].acceptedAnswer.text = sentence + ' Holiday hours may differ, so please call ' + PHONE + ' to confirm.';
+        faqData.mainEntity.forEach(function (q) {
+          var answer = faqAnswers[q.name.toLowerCase()];
+          if (answer) q.acceptedAnswer.text = answer;
+        });
         faqEl.textContent = JSON.stringify(faqData);
       }
     } catch (e) { /* keep the data written in the HTML */ }
+  }
+
+  // "Upcoming holidays" list under the office hours (the next 4 within a year)
+  function renderHolidayList() {
+    var box = $('holiday-list'), now = practiceNow();
+    if (!box || !now) return;
+    var list = box.querySelector('ul');
+    var limit = dayAfter(now, 366).iso;
+    var items = SPECIALS.filter(function (d) { return d.date >= now.iso && d.date < limit; })
+      .sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(0, 4);
+    if (!items.length || !list) return;
+    list.textContent = '';
+    items.forEach(function (d) {
+      var p = d.date.split('-');
+      var weekday = DAY_NAMES[new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay()];
+      var li = el('li');
+      li.appendChild(el('span', 'holiday-date', weekday.slice(0, 3) + ', ' + MONTHS[+p[1] - 1] + ' ' + (+p[2])));
+      li.appendChild(el('span', 'holiday-name', d.label));
+      li.appendChild(appendWithTimes(el('span', 'holiday-hours'), d.hours));
+      list.appendChild(li);
+    });
+    box.hidden = false;
   }
 
   /* ------------------------------------------------------------------
@@ -373,6 +443,24 @@
       note.appendChild(el('span', 'holiday-note', 'Holiday hours may differ, so please call to confirm.'));
     }
 
+    // The in-office lab keeps its own hours (not shown on special days: call instead)
+    var labToday = LAB && LAB.week[today.weekday];
+    if (labToday) {
+      var labRow = labTable && labTable.querySelector('tr[data-day="' + today.weekday + '"]');
+      if (labRow) {
+        labRow.classList.add('is-today');
+        labRow.querySelector('th').appendChild(el('span', 'today-badge', 'Today'));
+      }
+      var labLine = el('p', 'lab-line');
+      appendWithTimes(labLine, special ? 'Lab: please call to verify today’s hours. '
+        : labToday.closed ? 'Lab: closed today. '
+        : 'Lab (blood draws): ' + labToday.text + (labToday.lunch ? ', closed ' + compactRange(LAB.lunch) + ' for lunch' : '') + '. ');
+      var labLink = el('a', '', 'Lab hours');
+      labLink.href = '#lab';
+      labLine.appendChild(labLink);
+      target.appendChild(labLine);
+    }
+
     // Advance warning for the next closure or special hours
     var ahead = CONFIG.announceDaysAhead === undefined ? 7 : +CONFIG.announceDaysAhead;
     for (var i = 1; i <= ahead; i++) {
@@ -380,9 +468,11 @@
       if (!upcoming) continue;
       var p = day.iso.split('-');
       var when = (i === 1 ? 'tomorrow, ' : '') + day.weekday + ', ' + MONTHS[+p[1] - 1] + ' ' + (+p[2]);
-      target.appendChild(el('p', 'upcoming-note', isClosedText(upcoming.hours)
+      target.appendChild(appendWithTimes(el('p', 'upcoming-note'), isClosedText(upcoming.hours)
         ? 'Upcoming: closed ' + when + ' (' + upcoming.label + ').'
-        : 'Upcoming: ' + when + ', ' + upcoming.hours + ' (' + upcoming.label + ').'));
+        : parseRange(upcoming.hours)
+          ? 'Upcoming: ' + when + ', ' + upcoming.hours + ' (' + upcoming.label + ').'
+          : 'Upcoming: ' + upcoming.label + ', ' + when + ': ' + upcoming.hours.charAt(0).toLowerCase() + upcoming.hours.slice(1) + '.'));
       break;
     }
   }
@@ -425,6 +515,7 @@
   }
 
   renderWeeklyHours();
+  renderHolidayList();
   renderToday();
   renderStatus();
   setInterval(renderStatus, 60000);

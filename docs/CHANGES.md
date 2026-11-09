@@ -170,3 +170,11 @@ Behavior and appearance are unchanged: before/after screenshots are pixel-identi
 - **HTML** (`index.html`): class names match the new CSS components, unused classes removed (`np-panel`, `faq-layout`, `panel--glass`), list indentation fixed, section comments updated.
 - **Image script** (`tools/optimize-images.py`): source list documented at the top, repeated code folded into helpers; builds the New Patients photo straight from `originals/waiting-room.webp` (all other outputs byte-identical).
 - **Removed:** `assets/images/originals/unused/` (two exact duplicates of your own images and an unused stock photo), `originals/waiting-room.jpg` (a converted copy of `waiting-room.webp`), and the outdated `docs/screenshots/` from earlier designs (9.7 MB), replaced by three current full-page screenshots.
+
+## Holidays, lab hours and Facebook (Nov 9, 2026)
+From the office's email:
+- **Holidays in `hours.js`:** closed Thanksgiving, the day after Thanksgiving, Christmas Day, New Year's Day and Memorial Day; "Reduced afternoon hours (call for availability)" on Christmas Eve and New Year's Eve; July 4 and Labor Day left open with the "Holiday hours may differ" reminder. On those days the hero card, the open-now status and the hours table all switch; the hero warns a week ahead.
+- **Upcoming holidays list** under the office hours (the next 4 within a year), built from `hours.js`.
+- Holiday text that isn't a time (like "Reduced afternoon hours…") is shown as written; the open-now status is hidden that day instead of guessing, and the hours table lets that text wrap.
+- **Lab hours:** a new card in Contact & hours (`#lab`) with the lab's weekly hours, Pam's note about the outside agency (linking the Facebook page) and a call-to-verify link. Lab hours live in `hours.js` → `lab` and also feed a line in the hero hours card ("Lab (blood draws): 7:15 AM – 4:30 PM…"; on holidays it says to call) and a new FAQ, "Do you have a lab for blood work?" (visible and in the FAQ structured data). No open-now status for the lab, since a third party runs it.
+- **Facebook:** link in the footer and in the lab note; added to the clinic's structured data (`sameAs`).
