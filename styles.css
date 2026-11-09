@@ -314,6 +314,10 @@ a[href^="tel:"] { white-space: nowrap; }
 @media (max-width: 29.99em) {
   .cta-row .btn, .np-cta .btn { width: 100%; }
 }
+/* Large phones: the two buttons share one width (side by side when they fit, stacked otherwise) */
+@media (min-width: 30em) and (max-width: 47.99em) {
+  .cta-row, .np-cta { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+}
 
 
 /* ==========================================================================
